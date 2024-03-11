@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Nearby Shops</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+
+    #store-list {
+      margin-top: 20px;
+    }
+
+    .store {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Find Nearby Shops</h1>
+  <label for="shop-type">Select Shop Type:</label>
+  <select id="shop-type">
+    <option value="mobile">Mobile Shop</option>
+    <option value="shoe">Shoe Shop</option>
+    <option value="other">Other</option>
+  </select>
+  <div id="map"></div>
+  <div id="store-list"></div>
+
+  <script>
+    // Sample data of shops with ratings
+    const shops = [
+      { name: "MobileStore1", type: "mobile", rating: 4.5, lat: 37.7749, lng: -122.4194 },
+      { name: "ShoeStore1", type: "shoe", rating: 4.2, lat: 37.7849, lng: -122.4194 },
+      { name: "MobileStore2", type: "mobile", rating: 4.1, lat: 37.7849, lng: -122.4294 },
+      { name: "ShoeStore2", type: "shoe", rating: 3.8, lat: 37.7749, lng: -122.4294 },
+      { name: "OtherStore", type: "other", rating: 4.3, lat: 37.7649, lng: -122.4194 }
+    ];
+
+    // Function to initialize Google Maps
+    function initMap() {
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 37.7749, lng: -122.4194 },
+        zoom: 12,
+      });
+
+      // Get selected shop type
+      const selectedType = document.getElementById("shop-type").value;
+
+      // Filter shops based on selected type
+      const filteredShops = shops.filter(shop => shop.type === selectedType);
+
+      // Add markers for filtered shops
+      filteredShops.forEach((shop) => {
+        const marker = new google.maps.Marker({
+          position: { lat: shop.lat, lng: shop.lng },
+          map: map,
+          title: shop.name,
+        });
+
+        // Add info window with shop name and rating
+        const infowindow = new google.maps.InfoWindow({
+          content: `<strong>${shop.name}</strong><br>Rating: ${shop.rating}`,
+        });
+
+        marker.addListener("click", () => {
+          infowindow.open(map, marker);
+        });
+      });
+
+      // Sort filtered shops by rating
+      filteredShops.sort((a, b) => b.rating - a.rating);
+
+      // Display sorted shop list
+      const storeListElement = document.getElementById("store-list");
+      storeListElement.innerHTML = ''; // Clear previous list
+      filteredShops.forEach((shop) => {
+        const shopElement = document.createElement("div");
+        shopElement.classList.add("store");
+        shopElement.innerHTML = `<strong>${shop.name}</strong><br>Rating: ${shop.rating}`;
+        storeListElement.appendChild(shopElement);
+      });
+    }
+
+    // Load Google Maps API script
+    function loadScript() {
+      const script = document.createElement("script");
+      script.src = "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    loadScript(); // Load Google Maps API
+  </script>
+</body>
+</html>
